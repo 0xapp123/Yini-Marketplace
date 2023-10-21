@@ -1,10 +1,9 @@
 import './App.css'
 import {Buffer} from 'buffer';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { WagmiConfig, createConfig, configureChains } from 'wagmi'
 import { publicProvider } from 'wagmi/providers/public'
-import { goerli } from 'wagmi/chains'
+import { bscTestnet } from 'wagmi/chains'
 
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet'
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
@@ -21,9 +20,8 @@ import MyNfts from './pages/MyNfts'
 window.Buffer = window.Buffer || Buffer;
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [goerli],
+  [bscTestnet],
   [
-    alchemyProvider({ apiKey: 'QoYcVFgKZKtj4vJVNuuNMCeJg2yR26ZD' }),
     publicProvider()
   ]
 )

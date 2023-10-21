@@ -1,107 +1,43 @@
+import React, { useEffect, useState } from 'react'
+import { useAccount, useContractRead } from 'wagmi'
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config'
+
 import { ReactComponent as LogoSvg } from '../assets/images/nft_logo.svg'
 import WindowBg from '../assets/images/window_bg.png'
 import WindowBgS from '../assets/images/window_bg-sm.png'
-import NFT_1 from '../assets/images/nft_1.png'
-import NFT_2 from '../assets/images/nft_2.png'
-import NFT_3 from '../assets/images/nft_3.png'
-import NFT_4 from '../assets/images/nft_4.png'
-import NFT_5 from '../assets/images/nft_5.png'
-import NFT_6 from '../assets/images/nft_6.png'
-import NFT_7 from '../assets/images/nft_7.png'
-import NFT_8 from '../assets/images/nft_8.png'
 import NftGrid from '../layouts/NftGrid'
 
 function Home () {
-  const datas = [
-    {
-      id: 135123,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 1.3,
-      nft: NFT_1,
-      owner: ''
-    },
-    {
-      id: 135124,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 1.5,
-      nft: NFT_2,
-      owner: ''
-    },
-    {
-      id: 135125,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 2.1,
-      nft: NFT_3,
-      owner: ''
-    },
-    {
-      id: 135126,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 7.1,
-      nft: NFT_4,
-      owner: ''
-    },
-    {
-      id: 135127,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 2.9,
-      nft: NFT_5,
-      owner: ''
-    },
-    {
-      id: 135128,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 5.0,
-      nft: NFT_6,
-      owner: ''
-    },
-    {
-      id: 135129,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 1.8,
-      nft: NFT_7,
-      owner: ''
-    },
-    {
-      id: 135130,
-      name: "Private's Helmet",
-      head: 3,
-      body: 21,
-      arm: 4,
-      special: 7,
-      price: 0.8,
-      nft: NFT_8,
-      owner: ''
+  const [data, setData] = useState()
+  const [mintIds, setMintIds] = useState()
+
+  const { address } = useAccount()
+
+  const mintedData = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getAllTokens'
+  })
+
+  useEffect(() => {
+    if (mintedData && mintedData.data) {
+      let _mintedIds = []
+      mintedData.data.forEach(datum => {
+        _mintedIds.push(Number(datum))
+      })
+      setMintIds(_mintedIds)
     }
-  ]
+
+    let _data = []
+    while (_data.length < 30) {
+      const randomNum = Math.floor(Math.random() * 500)
+      if (!_data.includes(randomNum)) {
+        _data.push(randomNum)
+      }
+    }
+    setData(_data)
+  }, [address])
+
   return (
     <div className=''>
       <div className='relative flex items-center justify-between px-4 lg:px-12 h-auto w-full'>
@@ -175,7 +111,7 @@ function Home () {
           Mintable NFTs with the most weekly views
         </p>
         <div className='w-full flex justify-center items-center'>
-          <NftGrid datas={datas} />
+          <NftGrid datas={data} mintedIds={mintIds} />
         </div>
       </div>
     </div>

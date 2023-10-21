@@ -1,36 +1,97 @@
 import React, { useEffect, useState } from 'react'
-import EthSvg from '../assets/svgIcons'
 import NFTBg from '../assets/images/nft_bg.png'
 import WindowBg from '../assets/images/window_bg.png'
 import WindowBgS from '../assets/images/window_bg-sm.png'
 import ComingSoon from '../assets/images/coming_soon.png'
+import WalletModal from '../component/wallerConnectModal'
+import LoadingModal from '../component/loding'
+
+import { useAccount, useContractRead } from 'wagmi'
+import { writeContract, waitForTransaction } from '@wagmi/core'
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config'
+import { formatEther, parseEther } from 'viem'
 
 function NftGrid (props) {
+  const { address } = useAccount()
   const [nftInfoModalState, setNftInfoModalState] = useState(false)
+  const [connectwalletModalState, setConnectwalletModalState] = useState(false)
   const [infoNft, setInfoNft] = useState()
   const [infoId, setInfoId] = useState()
   const [infoName, setInfoName] = useState()
-  const [infoPrice, setInfoPrice] = useState()
-  const [infoHead, setInfoHead] = useState()
-  const [infoBody, setInfoBody] = useState()
-  const [infoArm, setInfoArm] = useState()
-  const [infoSpecial, setInfoSpecial] = useState()
-  const [infoOwner, setInfoOwner] = useState('')
+  // const [infoPrice, setInfoPrice] = useState()
+  const [infoBoxing, setInfoBoxing] = useState()
+  const [infoEnergy, setInfoEnergy] = useState()
+  const [loading, setLoading] = useState(false)
 
-  const setModalInfo = data => {
-    if (data) {
-      data.nft ? setInfoNft(data.nft) : setInfoNft()
-      data.id ? setInfoId(data.id) : setInfoId()
-      data.price ? setInfoPrice(data.price) : setInfoPrice()
-      data.name ? setInfoName(data.name) : setInfoName()
-      data.head ? setInfoHead(data.head) : setInfoHead()
-      data.body ? setInfoBody(data.body) : setInfoBody()
-      data.arm ? setInfoArm(data.arm) : setInfoArm()
-      data.special ? setInfoSpecial(data.special) : setInfoSpecial()
-      data.owner ? setInfoOwner(data.owner) : setInfoOwner('')
+  const [getBNB, setGetBNB] = useState('')
+
+  // const [infoOwner, setInfoOwner] = useState('')
+  const [data, setData] = useState([])
+  const [mintedData, setMintedData] = useState([])
+
+  const mintNFT = async id => {
+    setLoading(true)
+    try {
+      const { transaction } = await writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'mintToken',
+        args: [id],
+        value: parseEther('0.1')
+      })
+      console.log(transaction, '>>>>transaction<<<<<<')
+      const data = await waitForTransaction({
+        hash: transaction
+      })
+      if (data) {
+        setLoading(false)
+        setNftInfoModalState(false)
+      }
+    } catch (err) {
+      setLoading(false)
+      console.log('error')
+    }
+  }
+
+  const modalState = () => {
+    setNftInfoModalState(!nftInfoModalState)
+    setConnectwalletModalState(!connectwalletModalState)
+  }
+
+  const setModalInfo = item => {
+    console.log('item.attributes.id', item.attributes.id)
+    if (item) {
+      item.image ? setInfoNft(item.image) : setInfoNft()
+      // item.price ? setInfoPrice(item.price) : setInfoPrice()
+      item.name ? setInfoName(item.name) : setInfoName()
+      // item.contract ? setInfoOwner(item.contract) : setInfoOwner('')
+      item.attributes.id != null ? setInfoId(item.attributes.id) : setInfoId(9)
+      item.attributes.boxing
+        ? setInfoBoxing(item.attributes.boxing)
+        : setInfoBoxing()
+      item.attributes.energy
+        ? setInfoEnergy(item.attributes.energy)
+        : setInfoEnergy()
     }
     setNftInfoModalState(!nftInfoModalState)
   }
+
+  const getToken = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: 'getRealPrice',
+    args: [infoId]
+  })
+
+  useEffect(() => {
+    if (getToken && getToken.data) {
+      console.log(typeof formatEther(getToken.data))
+      setGetBNB(formatEther(getToken.data).toString())
+    } else {
+      // Handle the case when getToken or getToken.data is undefined
+      console.log('getToken or getToken.data is undefined')
+    }
+  }, [getToken])
 
   useEffect(() => {
     if (nftInfoModalState) {
@@ -40,40 +101,70 @@ function NftGrid (props) {
     }
   }, [nftInfoModalState])
 
+  useEffect(() => {
+    console.log('props ', props.contract)
+    if (props.mintedIds && props.mintedIds.length > 0) {
+      setMintedData(props.mintedIds)
+    }
+    if (props.datas && props.datas.length > 0) {
+      props.datas.map(async datum => {
+        await fetch(`https://logarithm.games/bscnft/${datum}`)
+          .then(resp => {
+            if (!resp.ok) {
+              throw new Error(`HTTP error! Status: ${resp.status}`)
+            }
+            return resp.json()
+          })
+          .then(json => {
+            setData(oldArray => [...oldArray, json])
+          })
+          .catch(e => {
+            console.log(e)
+          })
+      })
+    }
+  }, [props])
+
   return (
     <>
-      {props.datas && props.datas.length > 0 && (
+      {props.datas && props.datas.length > 0 ? (
         <div className='my-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10'>
-          {props.datas.map((data, index) => {
+          {data.map((item, index) => {
             return (
               <div
                 key={index}
                 className='hover:animate-pulse hover:scale-105 transition-all'
               >
-                <img
-                  className='w-[362px] h-auto bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 p-1'
-                  src={data.nft}
-                  alt=''
-                />
-                <div className='backdrop-blur-lg bg-[#02021b6b] w-auto h-[196px] flex justify-center p-[20px]'>
-                  <div className='w-full'>
-                    <div className='w-full flex justify-between items-center'>
-                      <p className='text-white'>#{data.id}</p>
+                {mintedData?.includes(item.attributes.id) ? (
+                  <img
+                    className='w-[362px] h-auto bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 p-1 grayscale'
+                    src={item.image}
+                    alt=''
+                  />
+                ) : (
+                  <img
+                    className='w-[362px] h-auto bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 p-1'
+                    src={item.image}
+                    alt=''
+                  />
+                )}
+                <div className='backdrop-blur-lg bg-[#02021b6b] w-auto h-[180px] flex justify-center p-[20px]'>
+                  <div className='w-full items-center h-full flex flex-col justify-center'>
+                    <div className='w-full flex justify-between text-2xl items-center'>
+                      <p className='text-white'># {item.attributes.id}</p>
                       <div className='flex'></div>
                     </div>
-                    <div className='my-3 flex items-center ju gap-4'>
-                      <EthSvg />
-                      <p className='text-white font-bold text-2xl'>
-                        {data.price} ETH
-                      </p>
-                    </div>
                     <div className='w-full flex justify-center items-center'>
-                      <button
-                        className='cursor-pointer hover:animate-pulse hover:scale-105 transition-all my-3 border-[1px] border-solid border-pink-300 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 rounded-[5px] w-[180px] h-[60px] text-white'
-                        onClick={() => setModalInfo(data)}
-                      >
-                        {data.owner === '' ? 'Mint Now' : 'Sell Now'}
-                      </button>
+                      {mintedData?.includes(item.attributes.id) ? (
+                        <></>
+                      ) : (
+                        <button
+                          className='cursor-pointer hover:animate-pulse hover:scale-105 transition-all my-3 border-[1px] border-solid border-pink-300 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 rounded-[5px] w-[180px] h-[60px] text-white'
+                          onClick={() => setModalInfo(item)}
+                        >
+                          {props.isMine === 1 ? 'Sell Now' : 'Mint Now'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -81,10 +172,14 @@ function NftGrid (props) {
             )
           })}
         </div>
+      ) : (
+        <div className='text-3xl text-white font-bold mx-auto items-center flex py-40'>
+          No NFT
+        </div>
       )}
 
       {nftInfoModalState && (
-        <div className='w-full h-screen z-30 fixed top-0 left-0 flex justify-center overflow-auto'>
+        <div className='w-full h-screen z-30 fixed top-0 left-0 flex justify-center overflow-x-scroll'>
           <div
             className='w-full h-full backdrop-blur-sm fixed top-0 left-0 cursor-pointer bg-[#33333333] '
             onClick={() => setNftInfoModalState(!nftInfoModalState)}
@@ -106,8 +201,8 @@ function NftGrid (props) {
                   {infoName}
                 </h1>
                 <div className='flex flex-col sm:flex-row w-full gap-1 sm:gap-10 justify-between px-12 items-center'>
-                  <p className='text-2xl p-1'>#{infoId}</p>
-                  <p className='text-2xl font-bold p-1'>{infoPrice} ETH</p>
+                  <p className='text-2xl p-1'># {infoId}</p>
+                  <p className='text-2xl font-bold p-1'>{getBNB} BNB</p>
                 </div>
               </div>
             </div>
@@ -128,10 +223,10 @@ function NftGrid (props) {
                   Name: {infoName}
                 </p>
                 <p className='my-8 text-xl sm:text-3xl font-bold text-[#333333] p-1'>
-                  ID: #{infoId}
+                  ID: # {infoId}
                 </p>
                 <p className='my-8 text-xl sm:text-3xl font-bold text-[#333333] p-1'>
-                  Price: {infoPrice} ETH
+                  Price: {getBNB} BNB
                 </p>
 
                 <p className='mt-20 mb-4 text-xl sm:text-3xl font-bold text-[#333333] p-1'>
@@ -139,40 +234,58 @@ function NftGrid (props) {
                 </p>
                 <div className='flex flex-wrap justify-center items-center gap-4 md:gap-10'>
                   <p className='text-xl sm:text-3xl font-medium text-[#333333] p-1'>
-                    Head: {infoHead}
+                    Boxing: {infoBoxing}
                   </p>
                   <p className='text-xl sm:text-3xl font-medium text-[#333333] p-1'>
-                    Body: {infoBody}
-                  </p>
-                  <p className='text-xl sm:text-3xl font-medium text-[#333333] p-1'>
-                    Arm: {infoArm}
-                  </p>
-                  <p className='text-xl sm:text-3xl font-medium text-[#333333] p-1'>
-                    Special: {infoSpecial}
+                    Energy: {infoEnergy}
                   </p>
                 </div>
 
                 <div className='w-full flex justify-center items-center'>
-                  <button className='w-full lg:w-[300px] cursor-pointer hover:animate-pulse hover:scale-105 transition-all border-[1px] border-solid border-pink-300 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 rounded-[5px] h-[60px] text-white my-10'>
-                    {!infoOwner ? 'Mint Now' : 'Sell Now'}
-                  </button>
+                  {address !== '' &&
+                  address !== undefined &&
+                  address !== null ? (
+                    <button
+                      className='w-full lg:w-[300px] cursor-pointer hover:animate-pulse hover:scale-105 transition-all border-[1px] border-solid border-pink-300 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 rounded-[5px] h-[60px] text-white my-10'
+                      onClick={() => mintNFT(infoId)}
+                    >
+                      {props.isMine === 1 ? 'Sell Now' : 'Mint Now'}
+                    </button>
+                  ) : (
+                    <button
+                      className='w-full lg:w-[300px] cursor-pointer hover:animate-pulse hover:scale-105 transition-all border-[1px] border-solid border-pink-300 bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 rounded-[5px] h-[60px] text-white my-10'
+                      onClick={() => modalState()}
+                    >
+                      Please connect wallet
+                    </button>
+                  )}
                 </div>
-                {infoOwner && (
-                  <div className='fixed top-0 left-0 w-full h-screen flex justify-center items-center z-50'>
-                    {/* <p className='z-50 text-red-500 '>COMING SOON!</p> */}
-                    <img
-                      className='w-[60%] cursor-pointer'
-                      src={ComingSoon}
-                      alt=''
-                      onClick={() => setNftInfoModalState(!nftInfoModalState)}
-                    />
-                  </div>
-                )}
               </div>
+              {props.isMine === 1 && (
+                <div className='absolute top-0 left-0 w-full h-full flex justify-center items-center z-50'>
+                  {/* <p className='z-50 text-red-500 '>COMING SOON!</p> */}
+                  <img
+                    className='w-[60%] cursor-pointer'
+                    src={ComingSoon}
+                    alt=''
+                    onClick={() => setNftInfoModalState(!nftInfoModalState)}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
+      {connectwalletModalState && (
+        <div className='w-full h-screen z-30 fixed top-0 left-0 flex justify-center items-center'>
+          <div
+            className='w-full h-screen backdrop-blur-sm fixed top-0 left-0 cursor-pointer bg-[#33333333]'
+            onClick={() => setConnectwalletModalState(!connectwalletModalState)}
+          ></div>
+          <WalletModal onClose={() => setConnectwalletModalState(false)} />
+        </div>
+      )}
+      {loading && <LoadingModal />}
     </>
   )
 }

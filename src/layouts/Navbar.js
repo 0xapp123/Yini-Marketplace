@@ -1,30 +1,16 @@
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  useEnsAvatar,
-  useEnsName
-} from 'wagmi'
+import { useAccount, useDisconnect } from 'wagmi'
+import WalletModal from '../component/wallerConnectModal'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { ReactComponent as ModalBg } from '../assets/images/modal_bg.svg'
 import React, { useEffect, useState, useRef } from 'react'
 import { BiMenu } from 'react-icons/bi'
 
-// import metaMask from '../assets/images/metamask.png'
-// import walletConnect from '../assets/images/walletconnect.png'
-// import coinbaseWallet from '../assets/images/walletlink.png'
-
 function Navbar () {
   const [walletIcons, setWalletIcons] = useState(new Map())
-  const { address, connector, isConnected } = useAccount()
-  const { data: ensAvatar } = useEnsAvatar({ address })
-  const { data: ensName } = useEnsName({ address })
+  const { address, isConnected } = useAccount()
   const [connectwalletModalState, setConnectwalletModalState] = useState(false)
   const menuDropdown = useRef()
   const [dropMenu, setDropMenu] = useState(false)
   const navigate = useNavigate()
-  const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect()
   const { disconnect } = useDisconnect()
 
   useEffect(() => {
@@ -34,6 +20,12 @@ function Navbar () {
     tmp.set('walletConnect', '/images/walletconnect.png')
     setWalletIcons(tmp)
   }, [])
+
+  useEffect(() => {
+    if (address) {
+      setConnectwalletModalState(false)
+    }
+  }, [address])
 
   useEffect(() => {
     if (connectwalletModalState) {
@@ -57,17 +49,6 @@ function Navbar () {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [menuDropdown])
-
-  // if (isConnected) {
-  //   return (
-  //     <div>
-  //       <img src={ensAvatar} alt='ENS Avatar' />
-  //       <div>{ensName ? `${ensName} (${address})` : address}</div>
-  //       <div>Connected to {connector.name}</div>
-  //       <button onClick={disconnect}>Disconnect</button>
-  //     </div>
-  //   )
-  // }
 
   return (
     <>
@@ -119,9 +100,6 @@ function Navbar () {
           >
             MY NFTS
           </NavLink>
-          {/* <NavLink to="/AboutUs" className={({ isActive, isPending }) =>
-                        isPending ? "text-white" : isActive ? "text-white text-lg font-bold border-b-4 py-8 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]" : "text-lg font-bold text-[rgba(255,255,255,0.48)] py-8 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]"
-                    }>ABOUT US</NavLink> */}
         </div>
         <div className='flex relative justify-center items-center font-bold cursor-pointer hover:brightness-150 transition-all'>
           <div
@@ -265,55 +243,7 @@ function Navbar () {
             className='w-full h-screen backdrop-blur-sm fixed top-0 left-0 cursor-pointer bg-[#33333333]'
             onClick={() => setConnectwalletModalState(!connectwalletModalState)}
           ></div>
-          <ModalBg className='w-[400px] absolute' />
-          <div className='z-20'>
-            {connectors.map((connector, i) => (
-              <div key={i}>
-                <div
-                  // onClick={() => console.log('wallet connect')}
-                  disabled={!connector.ready}
-                  onClick={() => (
-                    connect({ connector }), setConnectwalletModalState(false)
-                  )}
-                  className='flex justify-center items-center p-2 cursor-pointer hover:brightness-150 hover:bg-[#ffffff11]'
-                >
-                  <p className='z-20 text-white font-bold text-2xl pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'>
-                    {connector.name}
-                    {!connector.ready && ' (unsupported)'}
-                    {isLoading &&
-                      connector.id === pendingConnector?.id &&
-                      ' (connecting)'}
-                  </p>
-                  <div className='z-10'>
-                    <img
-                      className='w-10 h-10'
-                      src={walletIcons.get(connector.id) ?? ''}
-                      alt=''
-                    />
-                  </div>
-                </div>
-                <div className='my-2 w-full h-[1px] bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 z-10'></div>
-              </div>
-            ))}
-            {/* <div className='flex justify-center items-center  p-2 cursor-pointer hover:brightness-150 hover:bg-[#ffffff11]'>
-              <p className='z-20 text-white font-bold text-2xl pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'>
-                WALLETCONNECT
-              </p>
-              <div className='z-10'>
-                <img className='w-10' src={Walletconnect} alt='' />
-              </div>
-            </div>
-            <div className='my-2 w-full h-[1px] bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 z-10'></div>
-            <div className='flex justify-center items-center  p-2 cursor-pointer hover:brightness-150 hover:bg-[#ffffff11]'>
-              <p className='z-20 text-white font-bold text-2xl pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'>
-                WALLETLINK
-              </p>
-              <div className='z-10'>
-                <img className='w-10' src={Walletlink} alt='' />
-              </div>
-            </div>
-            <div className='my-2 w-full h-[1px] bg-gradient-to-r from-pink-500 via-purple-600 to-blue-500 z-10'></div> */}
-          </div>
+          <WalletModal onClose={() => setConnectwalletModalState(false)} />
         </div>
       )}
     </>

@@ -27,7 +27,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 )
 
 const config = createConfig({
-  autoConnect: false,
+  autoConnect: true,
   connectors: [
     new MetaMaskConnector({ chains }),
     new CoinbaseWalletConnector({

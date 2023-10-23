@@ -16,8 +16,9 @@ function Home () {
   const mintedData = useContractRead({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
-    functionName: 'getAllTokens'
-  })
+    functionName: 'getAllTokens',
+    watch: true,
+    })
 
   useEffect(() => {
     if (mintedData && mintedData.data) {
@@ -40,8 +41,8 @@ function Home () {
 
   return (
     <div className=''>
-      <div className='relative flex items-center justify-between px-4 lg:px-12 h-auto w-full'>
-        <div className='w-full px-2 my-28 lg:p-28 flex flex-col lg:items-start items-center justify-center z-10'>
+      <div className='relative flex items-center justify-between px-4 lg:px-12 h-auto w-full my-28'>
+        <div className='w-full px-2 lg:p-28 flex flex-col lg:items-start items-center justify-center z-10'>
           <h1 className='text-[32px] md:text-[40px] lg:ml-0 xl:text-[64px] text-white font-bold my-8 lg:mr-[200px]'>
             LOGARITHM GAMES
           </h1>

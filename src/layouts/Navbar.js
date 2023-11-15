@@ -104,7 +104,7 @@ function Navbar () {
         <div className='flex relative justify-center items-center font-bold cursor-pointer hover:brightness-150 transition-all'>
           <div
             onClick={() => setDropMenu(!dropMenu)}
-            className='relative w-[40px] h-[40px] mr-1 flex lg:hidden items-center justify-center rounded-lg border-[1px] border-[rgba(255,255,255,0.48)] cursor-pointer'
+            className='relative w-[40px] h-[40px] mr-8 flex lg:hidden items-center justify-center rounded-lg border-[1px] border-[rgba(255,255,255,0.48)] cursor-pointer'
           >
             <BiMenu
               style={{ fontSize: '24px', color: 'rgba(255,255,255,0.48)' }}
@@ -139,14 +139,14 @@ function Navbar () {
               onClick={() =>
                 setConnectwalletModalState(!connectwalletModalState)
               }
-              className='z-20 w-[160px] lg:w-[220px] xl:w-[319px] text-end text-white text-md lg:text-lg xl:text-2xl lg:pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'
+              className='z-20 text-white text-md lg:text-lg xl:text-2xl lg:pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'
             >
               CONNECT WALLET
             </p>
           ) : (
             <p
               onClick={disconnect}
-              className='z-20 w-[160px] lg:w-[220px] xl:w-[319px] text-end text-white text-md lg:text-lg xl:text-2xl lg:pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'
+              className='z-20 text-white text-md lg:text-lg xl:text-2xl lg:pr-4 drop-shadow-[1px_1px_0_rgba(18,214,223,1)]'
             >
               Disconnect
             </p>

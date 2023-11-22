@@ -1,41 +1,41 @@
 import NftGrid from '../layouts/NftGrid'
 import { useAccount, useContractRead, useContractReads } from 'wagmi'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config'
 
 function MyNfts () {
   const { isConnected, address } = useAccount()
-  const [contracts, setContracts] = useState([])
+  const [nftcontracts, setNftContracts] = useState([])
+  const [tokenIds, setTokenIds] = useState([])
+
   const count = useContractRead({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'balanceOf',
-    // args: ['0x77b3Ee608B7a387cE7611039A16EC28a000B57f7']
-    args: [address]
+    args: [address],
+    watch: true
   })
 
-  const tokenIdData = useContractReads({
-    contracts: contracts
+  const { data, isError, isLoading } = useContractReads({
+    contracts: nftcontracts
   })
 
-  let tokenIds = useMemo(() => {
-    if (tokenIdData.data && tokenIdData.data.length > 0) {
+  useEffect(() => {
+    if (data && data.length > 0) {
       let _ids = []
-      tokenIdData.data.forEach(datum => {
+      data.forEach(datum => {
         console.log(Number(datum.result))
         _ids.push(Number(datum.result))
       })
-      return _ids
+      setTokenIds(_ids)
     } else {
-      return []
+      setTokenIds([])
     }
-  }, [tokenIdData])
+  }, [data])
 
   useEffect(() => {
-    console.log('isConnected ', isConnected)
     if (isConnected && address) {
-      console.log(address, Number(count.data), count.data)
       let _contracts = []
 
       for (let i = 0; i < count.data; i++) {
@@ -46,9 +46,9 @@ function MyNfts () {
           args: [address, i]
         })
       }
-      setContracts(_contracts)
+      setNftContracts(_contracts)
     } else {
-      tokenIds = []
+      setTokenIds([])
     }
   }, [isConnected, address])
 

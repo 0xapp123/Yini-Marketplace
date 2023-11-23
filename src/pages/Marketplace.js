@@ -17,8 +17,11 @@ function Marketplace () {
     watch: true
   })
 
+  if (mintedData.data !== null && mintedData.data !== undefined) {
+    console.log("mintedData : ", mintedData.data)
+  }
   useEffect(() => {
-    if (mintedData.data != null && mintedData.data != undefined) {
+    if (mintedData.data !== null && mintedData.data !== undefined) {
       let _mintedIds = []
       mintedData.data.forEach(datum => {
         if (datum && datum != null) {

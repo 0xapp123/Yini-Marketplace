@@ -1,6 +1,6 @@
 import { Abi,  } from "viem";
 import { read, write } from "./utils";
-import { LP_TOKEN_ABI, LP_TOKEN_ADDRESS } from "../config";
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../config";
 
 export function useContract() {
  

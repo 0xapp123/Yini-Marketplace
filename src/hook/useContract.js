@@ -4,11 +4,12 @@ import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../config";
 
 export function useContract() {
  
-  const getRealPrice = async () => {
+  const getRealPrice = async (id) => {
     return await read({
       address: CONTRACT_ADDRESS,
       abi: CONTRACT_ABI,
       functionName: 'getRealPrice',
+      args: [id]
     })
   };
 

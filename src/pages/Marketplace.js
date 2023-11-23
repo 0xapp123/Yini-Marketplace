@@ -18,10 +18,10 @@ function Marketplace () {
   })
 
   useEffect(() => {
-    if (mintedData.data !== null || mintedData.data !== undefined) {
+    if (mintedData.data != null && mintedData.data != undefined) {
       let _mintedIds = []
       mintedData.data.forEach(datum => {
-        if (datum) {
+        if (datum && datum != null) {
           _mintedIds.push(Number(datum))
         }
       })

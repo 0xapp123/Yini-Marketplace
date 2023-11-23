@@ -12,6 +12,7 @@ import { useAccount, useContractRead, useWaitForTransaction } from 'wagmi'
 import { writeContract } from '@wagmi/core'
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config'
 import { formatEther, parseEther } from 'viem'
+import { useContract } from '../hook/useContract'
 
 function NftGrid (props) {
   const { address } = useAccount()
@@ -34,6 +35,8 @@ function NftGrid (props) {
   const [transactionHash, SetTransactionHash] = useState('')
 
   const [currentPage, setCurrentPage] = useState(1)
+
+  const { getRealPrice } = useContract();
 
   const mintNFT = async id => {
     setLoading(true)
@@ -106,12 +109,11 @@ function NftGrid (props) {
     setNftInfoModalState(!nftInfoModalState)
   }
 
-  const getToken = useContractRead({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'getRealPrice',
-    args: [infoId]
-  })
+  let getToken;
+  const getPrice = async (infoId) => {
+    if (infoId) getToken = await getRealPrice();
+  }  
+  getPrice(infoId);
 
   useEffect(() => {
     if (getToken && getToken.data) {

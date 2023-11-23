@@ -77,6 +77,8 @@ function NftGrid (props) {
 
   const setModalInfo = async item => {
     if (item || item === 0) {
+      console.log(item)
+      await getPrice(item);
       let data
       await fetch(`https://logarithm.games/bscnft/${item}`)
         .then(resp => {
@@ -109,21 +111,21 @@ function NftGrid (props) {
     setNftInfoModalState(!nftInfoModalState)
   }
 
-  let getToken;
   const getPrice = async (infoId) => {
-    if (infoId) getToken = await getRealPrice();
-  }  
-  getPrice(infoId);
+    if (infoId || infoId === 0) {
+      const getToken = await getRealPrice(infoId);
+      setGetBNB(formatEther(getToken).toString())
+  }}  
 
-  useEffect(() => {
-    if (getToken && getToken.data) {
-      console.log(typeof formatEther(getToken.data))
-      setGetBNB(formatEther(getToken.data).toString())
-    } else {
-      // Handle the case when getToken or getToken.data is undefined
-      console.log('getToken or getToken.data is undefined')
-    }
-  }, [getToken])
+  // useEffect(() => {
+  //   if (getToken && getToken.data) {
+  //     console.log(typeof formatEther(getToken.data))
+  //     setGetBNB(formatEther(getToken.data).toString())
+  //   } else {
+  //     // Handle the case when getToken or getToken.data is undefined
+  //     console.log('getToken or getToken.data is undefined')
+  //   }
+  // }, [getToken])
 
   useEffect(() => {
     if (nftInfoModalState) {

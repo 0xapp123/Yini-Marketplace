@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import NftGrid from '../layouts/NftGrid'
 import { useAccount, useContractRead } from 'wagmi'
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../config'
+import { useContract } from '../hook/useContract'
 
 function Marketplace () {
   const [data, setData] = useState()
@@ -9,39 +10,40 @@ function Marketplace () {
   const [sort, setSort] = useState(true)
 
   const { address } = useAccount()
+  const { getAllTokens, basePrice } = useContract();
 
-  const mintedData = useContractRead({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'getAllTokens',
-    watch: true
-  })
+  const getDataInfo = async (sort) => {
+    const mintedData = await getAllTokens();
+    const price = await basePrice();
+    console.log("mintedData : ", mintedData);
+    console.log("basePrice : ", price);
 
-  if (mintedData.data !== null && mintedData.data !== undefined) {
-    console.log("mintedData : ", mintedData.data)
-  }
-  useEffect(() => {
-    if (mintedData.data !== null && mintedData.data !== undefined) {
-      let _mintedIds = []
-      mintedData.data.forEach(datum => {
+    setMintIds([]);
+    setData([]);
+    let _data = [];
+    if (mintedData !== null && mintedData !== undefined) {
+      let _mintedIds = [];
+      mintedData.forEach((datum) => {
         if (datum && datum != null) {
-          _mintedIds.push(Number(datum))
+          _mintedIds.push(Number(datum));
         }
-      })
-      setMintIds(_mintedIds)
+      });
+      setMintIds(_mintedIds);
     }
-    setData([])
-    let _data = []
     if (sort) {
       for (let i = 499; i >= 0; i--) {
-        _data.push(i)
+        _data.push(i);
       }
     } else {
       for (let i = 0; i <= 499; i++) {
-        _data.push(i)
+        _data.push(i);
       }
     }
-    setData(_data)
+    setData(_data);
+  };
+
+  useEffect(() => {
+     getDataInfo(sort);
   }, [address, sort])
 
   return (

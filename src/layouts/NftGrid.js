@@ -76,7 +76,7 @@ function NftGrid (props) {
   }
 
   const setModalInfo = async item => {
-    if (item || item === 0) {
+    if (item) {
       console.log(item)
       await getPrice(item);
       let data

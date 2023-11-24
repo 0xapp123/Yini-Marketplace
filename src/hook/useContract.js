@@ -13,7 +13,25 @@ export function useContract() {
     })
   };
 
+  const getAllTokens = async () => {
+    return await read({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: 'getAllTokens'
+    })
+  };
+
+  const basePrice = async () => {
+    return await read({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: 'basePrice'
+    })
+  };
+
   return {
-    getRealPrice
+    getRealPrice,
+    getAllTokens,
+    basePrice
   };
 }

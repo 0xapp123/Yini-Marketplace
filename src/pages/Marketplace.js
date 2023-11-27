@@ -21,7 +21,7 @@ function Marketplace () {
 
   const getDataInfo = async (sort) => {
     const price = await basePrice();
-    console.log("mintedData : ", mintedData);
+    console.log("mintedData : ", mintedData.data);
     console.log("basePrice : ", price);
 
     setMintIds([]);

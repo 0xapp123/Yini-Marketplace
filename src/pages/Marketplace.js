@@ -9,11 +9,17 @@ function Marketplace () {
   const [mintIds, setMintIds] = useState()
   const [sort, setSort] = useState(true)
 
+  const mintedData = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
+    functionName: "getAllTokens",
+    watch: true,
+  });
+
   const { address } = useAccount()
-  const { getAllTokens, basePrice } = useContract();
+  const { basePrice } = useContract();
 
   const getDataInfo = async (sort) => {
-    const mintedData = await getAllTokens();
     const price = await basePrice();
     console.log("mintedData : ", mintedData);
     console.log("basePrice : ", price);
@@ -21,9 +27,9 @@ function Marketplace () {
     setMintIds([]);
     setData([]);
     let _data = [];
-    if (mintedData !== null && mintedData !== undefined) {
+    if (mintedData !== null && mintedData.data !== null && mintedData.data !== undefined) {
       let _mintedIds = [];
-      mintedData.forEach((datum) => {
+      mintedData.data.forEach((datum) => {
         if (datum && datum != null) {
           _mintedIds.push(Number(datum));
         }

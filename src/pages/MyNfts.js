@@ -17,6 +17,8 @@ function MyNfts () {
     watch: true
   })
 
+  console.log("count: ", count.data);
+
   const { data, isError, isLoading } = useContractReads({
     contracts: nftcontracts
   })

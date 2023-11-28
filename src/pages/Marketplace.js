@@ -30,7 +30,7 @@ function Marketplace () {
     if (mintedData !== null && mintedData.data !== null && mintedData.data !== undefined) {
       let _mintedIds = [];
       mintedData.data.forEach((datum) => {
-        if (datum && datum != null) {
+        if (datum != null) {
           _mintedIds.push(Number(datum));
         }
       });

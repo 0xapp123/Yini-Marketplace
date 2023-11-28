@@ -52,7 +52,7 @@ function NftGrid (props) {
       SetTransactionHash(hash)
     } catch (err) {
       setLoading(false)
-      console.log('error')
+      console.log('error: ', err)
       setNftInfoModalState(!nftInfoModalState)
     }
   }
